@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class BaseChemicalDeterminer(abc.ABC):
 
-    def __init__(self, lang, dictionaries_dir: Path):
+    def __init__(self, lang:str, dictionaries_dir: Path, *args, **kwargs):
         """__init__
 
         Args:
@@ -22,38 +22,12 @@ class BaseChemicalDeterminer(abc.ABC):
         """
         self.dictionaries_dir = dictionaries_dir  # Path
         self._lang = lang
-        self.chemicals= open(self.dictionaries_dir / f"chemical_list_{self.lang}-cleaned.txt").read().split("\n")
+        self.chemicals = open(
+            self.dictionaries_dir /
+            f"chemical_list_{self.lang}-cleaned.txt").read().split("\n")
 
     def __repr__(self) -> str:
-        return f"BaseChemicalDeterminer(dictionaries_dir={self.dictionaries_dir})"
-
-    def _get_searching_tree(self) -> Node:
-        """__get_searching_tree
-
-        This function will create a searching tree for chemicals.
-
-        Args:
-            searching_tree_path (Path, optional): The path to searching_tree file. Defaults to None.
-
-        Returns:
-            Node: The searching tree
-        """
-        if not self._lang:
-            raise NotImplementedError(
-                "Please specify the language by set_lang(); `en` and `zh` are supported."
-            )
-
-        self.searching_tree_file = self.dictionaries_dir / f"chemical_list_{self.lang}-tree.json"
-        logger.info(f"Getting searching tree from: {self.searching_tree_file}")
-        if not self.searching_tree_file.exists():
-            logger.info("Searching tree file not found, creating a new one.")
-            gen_tree = self.generate_searching_tree(
-                chemicals=self.chemicals,
-                json_path=None,
-            )
-            return gen_tree
-        logger.info("Searching tree file found, loading.")
-        return json2tree(self.searching_tree_file)
+        return f"<BaseChemicalDeterminer> #chemicals = {len(self.chemicals)}"
 
     @property
     @abc.abstractmethod
@@ -87,7 +61,6 @@ class BaseChemicalDeterminer(abc.ABC):
         return False
 
     @staticmethod
-    @abc.abstractmethod
     def generate_searching_tree() -> Node:
         raise NotImplementedError
 
