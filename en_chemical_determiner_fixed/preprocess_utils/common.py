@@ -43,3 +43,24 @@ def handle_punctuation(values: Set[str]) -> Set[str]:
         value = space(value)
         # remove chinese
         yield value.strip()
+
+def gen_zh_subwords(values: Set[str],
+                    suffix_only = False,
+                    min_len: int = 3,) -> Set[str]:
+    """add_zh_subwords
+        Args:
+            values (Set[str]): The values to handle.
+            suffix_only (bool): Whether to only add suffixes of the value.
+            threshold (int): The threshold of the length of the subword.
+        Yields:
+            Iterator[Set[str]]: The subwords to use to expand the dictionary.
+    """
+    for value in values:
+        matches = re.findall(r"[\u4e00-\u9fa5]+", value)
+        if suffix_only and len(matches):
+            if len(matches[-1]) > min_len:
+                yield matches[-1]
+        else:
+            for match in matches:
+                if len(match) > min_len:
+                    yield match

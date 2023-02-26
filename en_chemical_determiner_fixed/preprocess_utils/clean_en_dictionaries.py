@@ -34,7 +34,7 @@ def load_dictionaries(dictionaries_dir: str) -> set:
     return dic
 
 
-def clean_dictionaries(dictionaries_dir: str) -> List[str]:
+def clean_en_dictionaries(dictionaries_dir: str) -> List[str]:
     """clean_dictionaries clean and save the dictionaries.
 
     This function will clean the dictionaries and save

@@ -10,7 +10,7 @@ from tokenizers import Tokenizer
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
 
-from .common import full_to_half, handle_punctuation
+from .common import full_to_half, handle_punctuation, gen_zh_subwords
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ def load_dictionaries(dictionaries_dir: str) -> set:
     return dic
 
 
-def clean_dictionaries(dictionaries_dir: str) -> List[str]:
+def clean_zh_dictionaries(dictionaries_dir: str) -> List[str]:
     """clean_dictionaries clean and save the dictionaries.
 
     This function will clean the dictionaries and save
@@ -93,8 +93,14 @@ def clean_dictionaries(dictionaries_dir: str) -> List[str]:
     dicts = bpe_tokenize(dictionaries_dir)
     dicts = filter(lambda x: re.search(r'[a-zA-Z]', x), dicts)
     dicts = full_to_half(dicts)
+    # add subwords
+    tokens = gen_zh_subwords(dicts, suffix_only=True, min_len=4)
+    dicts = dicts + tokens
+
     dicts = handle_punctuation(dicts)
     dicts = sorted(dicts)
+    logger.info(f"Chemicals count: {len(dicts)}")
+
     # filter out empty strings
     with open(dictionaries_dir / f"chemical_list_zh-cleaned.txt", "w") as f:
         f.write("\n".join(filter(lambda x: len(x) > 1, dicts)))
@@ -102,8 +108,11 @@ def clean_dictionaries(dictionaries_dir: str) -> List[str]:
     return dicts
 
 
+
+
+
 if __name__ == "__main__":
     dictionries_dir = '/home/nanaeilish/projects/2023-chemicloud/en_chemical_determiner_fixed/data/dictionaries/chemical_determine'
     import pathlib
     dictionries_dir = pathlib.Path(dictionries_dir)
-    clean_dictionaries(dictionries_dir)
+    clean_zh_dictionaries(dictionries_dir)
